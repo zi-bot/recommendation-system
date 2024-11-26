@@ -10,6 +10,8 @@ Original file is located at
 - Nama : Andi Sadapotto
 - Email : andi.sadapotto.m@gmail.com
 - ID Dicoding : andi_sadapotto
+
+install library pendukung
 """
 
 !pip install fake-useragent
@@ -55,13 +57,14 @@ os.remove('archive.zip')
 #Tampilkan list konten dari folder 'dataset'
 !ls -l dataset
 
-"""### Load dataset"""
+"""### Load dataset
+
+load semua file dataset
+"""
 
 df_anime = pd.read_csv('dataset/animes.csv')
 df_review = pd.read_csv('dataset/reviews.csv')
 df_user = pd.read_csv('dataset/profiles.csv')
-
-df_review.head()
 
 """## Data Undestanding
 
@@ -129,11 +132,17 @@ link | link profil pengguna
 ### Assesing Data
 
 Cek missing value
+
+cek missing value anime
 """
 
 df_anime.isnull().sum()
 
+"""cek missing value review"""
+
 df_review.isnull().sum()
+
+"""cek missing value user/profile"""
 
 df_user.isnull().sum()
 
@@ -149,10 +158,12 @@ df_user.duplicated().sum()
 
 #### Dataset Anime
 
-Deskripsi statistik dataset anime
+ceck info variabel data frame anime
 """
 
 df_anime.info()
+
+"""Deskripsi statistik dataset anime"""
 
 df_anime.describe(include='all')
 
@@ -160,10 +171,15 @@ df_anime.describe(include='all')
 
 df_anime.groupby('genre').count().sort_values(by='uid', ascending=False)
 
-# show data based on ranked
+"""tampilkan data berdasarkan rank"""
+
 df_anime[['title','ranked']].sort_values(by='ranked', ascending=True)
 
+"""tamplikan mode dari synopsis"""
+
 df_anime.synopsis.mode()[0]
+
+"""visualiasi distribusi anime berdasarkan score, top 10 anime terbanyak beserta genre, hubungan antar score dengan episodes, hubungan score dan member"""
 
 # Create the figure and axes
 fig, axes = plt.subplots(2, 2, figsize=(15, 10))
@@ -194,17 +210,26 @@ plt.tight_layout()
 # Show the plot
 plt.show()
 
+"""#### Dataset review
 
-
-"""#### Dataset review"""
+cek info variabel review
+"""
 
 df_review.info()
 
+"""Deskripsi statistik dataset anime"""
+
 df_review.describe(include='all')
+
+"""tampilkan grouping data review by scores"""
 
 df_review.groupby('scores').count().sort_values(by='uid', ascending=False)
 
+"""tampilkan data grouping review by profile"""
+
 df_review.groupby('profile').count().sort_values(by='uid', ascending=False)
+
+"""menampilkan distribusi review score, dan top 10 reviewers"""
 
 # Create the figure and axes
 fig, axes = plt.subplots(2, 1, figsize=(10, 6))
@@ -226,15 +251,26 @@ plt.tight_layout()
 # Show the plot
 plt.show()
 
-"""#### Dataset profile/user"""
+"""#### Dataset profile/user
+
+cek info variabel user
+"""
 
 df_user.info()
 
+"""Deskripsi statistik dataset user"""
+
 df_user.describe(include='all')
+
+"""tampilkan data gender dari profile"""
 
 df_user.groupby('gender').profile.nunique().sort_values(ascending=False)
 
+"""cek missing valu dari variabel gender"""
+
 df_user.gender.isnull().sum()
+
+"""fungsi untuk melakukan pengecekan pada data user gender yang tidak konsisten"""
 
 def check_gender_inconsistency(df):
   """
@@ -258,7 +294,6 @@ def check_gender_inconsistency(df):
   else:
     return None
 
-# Example usage (assuming 'df_user' is your DataFrame):
 inconsistent_genders = check_gender_inconsistency(df_user)
 
 if inconsistent_genders is not None:
@@ -266,6 +301,8 @@ if inconsistent_genders is not None:
   print(inconsistent_genders)
 else:
   print("No inconsistencies in gender information found.")
+
+"""menampilkan distribusi gender dan taggal lahir"""
 
 # Create the figure and axes
 fig, ax = plt.subplots(figsize=(8, 6))
@@ -279,8 +316,6 @@ ax.set_ylabel('Number of Users')
 # Show the plot
 plt.show()
 
-#Further visualization for user data
-
 #Distribution of users by birthday year
 df_user['birthday'] = pd.to_datetime(df_user['birthday'], errors='coerce')
 birthyear = df_user['birthday'].dt.year
@@ -290,6 +325,8 @@ plt.title("Distribution of Users' Birth Year")
 plt.xlabel('Birth Year')
 plt.ylabel('Number of Users')
 plt.show()
+
+"""menampilkan data genre dengan score tertinggi dan yang paling banyak di review"""
 
 # Group by genre and get the highest score and most reviews for each genre
 genre_stats = df_anime.groupby('genre').agg(
@@ -309,6 +346,8 @@ highest_score_genre
 print("Genre with the most reviews:")
 most_reviews_genre
 
+"""menampilkan list genre dengan score dan jumlah review"""
+
 # Merge anime and review dataframes
 merged_df = pd.merge(df_anime, df_review, left_on='uid', right_on='anime_uid', how='inner')
 
@@ -322,6 +361,8 @@ genre_performance = merged_df.groupby('genre').agg(
 genre_performance = genre_performance.sort_values(by=['avg_score', 'num_reviews'], ascending=False)
 
 genre_performance
+
+"""menampilkan top ten genre dengan score dan jumlah review tertinggi"""
 
 # Filter genres with average score greater than 8
 top_genres = genre_performance[genre_performance['avg_score'] > 8]
@@ -338,6 +379,8 @@ top_ten_genres = genre_counts.head(10)
 
 top_ten_genres
 
+"""menampilkan visualiasi dari top ten genre dengan score dan jumlah review tertinggi"""
+
 # Create the bar plot for top_ten_genres
 plt.figure(figsize=(10, 6))
 sns.barplot(x=top_ten_genres.index, y=top_ten_genres.values)
@@ -348,12 +391,17 @@ plt.xticks(rotation=45, ha='right')  # Rotate x-axis labels for better readabili
 plt.tight_layout()
 plt.show()
 
-"""## Data Preparation"""
+"""## Data Preparation
+
+menghapus data duplikat
+"""
 
 # drop duplicate colomn
 df_anime.drop_duplicates(inplace=True)
 df_review.drop_duplicates(inplace=True)
 df_user.drop_duplicates(inplace=True)
+
+"""menangani missing value pada variabel-variabel dataset"""
 
 #fill missing value on dataset user
 df_user['gender'].fillna('Non-Binary', inplace=True)
@@ -382,13 +430,23 @@ df_anime.score.fillna(0, inplace=True)
 # fill missing values episodes to -1
 df_anime.episodes.fillna(-1, inplace=True)
 
+"""menampilkan dataset anime setelah cleansing"""
+
 df_anime
+
+"""cek missing value dataset anime setelah cleansing"""
 
 df_anime.isnull().sum()
 
+"""menampilkan dataset user setelah cleansing"""
+
 df_user
 
+"""menampilkan dataset review setelah cleansing"""
+
 df_review
+
+"""menggabungkan dataset review dan anime"""
 
 # prepare dataset for collaborative filtering
 
@@ -398,11 +456,17 @@ df_review_anime.drop(columns=['text','uid','scores','link'], inplace=True)
 df_review_anime = pd.merge(df_review_anime, df_anime[['uid','title','genre','img_url','score']], left_on='anime_uid', right_on='uid', how='left')
 df_review_anime
 
+"""menampilkan missing value dataset review anime"""
+
 df_review_anime.isnull().sum()
+
+"""membuat tfidf matrix"""
 
 # Create a TF-IDF vectorizer
 tfidf = TfidfVectorizer(stop_words='english')
 tfidf_matrix = tfidf.fit_transform(df_anime['genre'])
+
+"""membuat encoding multilabelbinarizer pada variabel genre"""
 
 from sklearn.preprocessing import MultiLabelBinarizer
 
@@ -415,6 +479,8 @@ genre_df = pd.DataFrame(genre_encoded, columns=mlb.classes_, index=df_review_ani
 # Concatenate the encoded genres with the existing DataFrame
 df_review_anime = pd.concat([df_review_anime, genre_df], axis=1)
 
+"""split dataset untuk model svd"""
+
 # define rating scale
 rating_scale = Reader(rating_scale=(0, 10))
 
@@ -423,6 +489,8 @@ data = Dataset.load_from_df(df_review_anime[['profile', 'title', 'user_scored',]
 
 # split dataset
 train_set, test_set = surprise_train_test_split(data, test_size=0.20, random_state=42)
+
+"""split dataset untuk model neural network embedding"""
 
 # Convert categorical data (profile and title) to numerical representations
 user_ids = df_review_anime['profile'].unique()
@@ -443,6 +511,8 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 """## Modeling
 
 ### Content Based
+
+fungsi untuk mencari top n anime dengan content based
 """
 
 def content_based_recommender(df, title, top_n=10):
@@ -470,6 +540,8 @@ def content_based_recommender(df, title, top_n=10):
     except Exception as e:
       print(f"An error occurred: {e}")
       return FileNotFoundError
+
+"""menampilkan top n anime dengan content based"""
 
 from fake_useragent import UserAgent
 
@@ -506,13 +578,21 @@ else:
 """### Colaborative filtering
 
 #### SVD
+
+inisiasi model svd
 """
 
 model_svd = SVD()
 
+"""melatih model svd"""
+
 model_svd.fit(train_set)
 
+"""melakukan prediksi model svd pada data test"""
+
 predictions_svd = model_svd.test(test_set)
+
+"""fungsi untuk memprediksi top n anime dengan model svd"""
 
 def collaborative_recommender(df, profile, top_n=10):
   all_anime = df['title'].unique()
@@ -522,6 +602,8 @@ def collaborative_recommender(df, profile, top_n=10):
   predictions.sort(key=lambda x: x.est, reverse=True)
   top_n_predictions = predictions[:top_n]
   return [(pred.iid, pred.est) for pred in top_n_predictions]
+
+"""menampilkan top n anime dengan model svd"""
 
 top_ten=collaborative_recommender(df_review_anime, 'Yuez', top_n=10)
 
@@ -553,7 +635,10 @@ else:
       ax[i].set_title("Score: {}".format(round(df_anime[df_anime["title"]==title]["score"].mean(),1)),y=-0.20,fontsize=10)
       fig.show()
 
-"""#### Neural network"""
+"""#### Neural network
+
+membuat model neural network dengan keras model
+"""
 
 # Input for user index
 user_input = tf.keras.layers.Input(shape=(1,))
@@ -580,9 +665,13 @@ output = tf.keras.layers.Dense(1)(hidden_layer3)
 # Create the model
 model = tf.keras.Model(inputs=[user_input, genre_input], outputs=output)
 
+"""inisiasi callback"""
+
 # define callback
 early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
 reduce_learning_rate = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=2)
+
+"""compile model"""
 
 # Compile the model
 model.compile(
@@ -590,6 +679,8 @@ model.compile(
       loss= 'mae',
       metrics= ['mae'],
     )
+
+"""training model"""
 
 # Prepare training data
 X_train_user = X_train[:, 0].reshape(-1, 1)  # User index
@@ -604,6 +695,8 @@ history = model.fit(
     validation_split=0.2,
     callbacks=[early_stopping,reduce_learning_rate]
 )
+
+"""fungsi untuk memprediksi top n anime dengan neural network model"""
 
 # 5. Make recommendations (example)
 def neural_network_recommender(user_profile, top_n=10):
@@ -627,15 +720,26 @@ def neural_network_recommender(user_profile, top_n=10):
 
     return top_anime
 
+"""memanggil fungsi neural_network_recommender"""
+
 top_10_nn = neural_network_recommender("Yuez", top_n=10)
+
+"""menampilkan top n prediksi dari neural_network_recommender"""
 
 top_10_nn
 
-"""## Evaluation"""
+"""## Evaluation
+
+evaluasi mae model svd
+"""
 
 accuracy.mae(predictions_svd)
 
+"""evaluasi rmse model svd"""
+
 accuracy.rmse(predictions_svd)
+
+"""evaluasi mae dan rmse model neural network"""
 
 #For Neural Network
 from sklearn.metrics import mean_absolute_error, mean_squared_error
@@ -653,6 +757,8 @@ rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 
 print(f"Neural Network MAE: {mae}")
 print(f"Neural Network RMSE: {rmse}")
+
+"""menampilkan visualisasi evaluasi model neural network"""
 
 # Plot training & validation loss values
 plt.figure(figsize=(10, 5))
